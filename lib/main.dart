@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(
-        title: 'Flutter Demo Home Page',
+        title: 'Hacker Earth News',
         bloc: bloc,
       ),
     );
@@ -43,20 +43,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var indxces;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: StreamBuilder<UnmodifiableListView<Articles>>(
-            stream: widget.bloc.articles,
-            // initialData: [],
-            builder: (context, snapshot) {
-              return ListView(
-                children: snapshot.data.map(_buildItem).toList(),
-              );
-            }));
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: StreamBuilder<UnmodifiableListView<Articles>>(
+          stream: widget.bloc.articles,
+          initialData: UnmodifiableListView<Articles>([]),
+          builder: (context, snapshot) {
+            return ListView(
+              children: snapshot.data.map(_buildItem).toList(),
+            );
+          }),
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          onTap: (index) {
+            if (index == 0) {
+              widget.bloc.storiesType.add(StoriesType.topStories);
+            } else {
+              widget.bloc.storiesType.add(StoriesType.newStories);
+            }
+          },
+          items: [
+            BottomNavigationBarItem(
+                title: Text("Top Stories"), icon: Icon(Icons.arrow_drop_up)),
+            BottomNavigationBarItem(
+                title: Text("New Stories"), icon: Icon(Icons.new_releases)),
+          ]),
+    );
   }
 }
 
