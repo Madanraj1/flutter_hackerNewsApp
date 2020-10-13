@@ -8,7 +8,6 @@ import 'dart:collection';
 enum StoriesType { topStories, newStories }
 
 class HackerNewsBloc {
-  final _articlesSubject = BehaviorSubject<UnmodifiableListView<Articles>>();
   var _articles = <Articles>[];
 
   Sink<StoriesType> get storiesType => _storiesTypeController.sink;
@@ -32,6 +31,13 @@ class HackerNewsBloc {
     24761105,
   ];
 
+  Stream<bool> get isLoading => _isLoadingSubject.stream;
+  final _isLoadingSubject = BehaviorSubject<bool>();
+
+  final _articlesSubject = BehaviorSubject<UnmodifiableListView<Articles>>();
+  Stream<UnmodifiableListView<Articles>> get articles =>
+      _articlesSubject.stream;
+
   HackerNewsBloc() {
     _getArtcilesAndUpdate(topids);
 
@@ -46,13 +52,12 @@ class HackerNewsBloc {
     });
   }
 
-  _getArtcilesAndUpdate(List<int> idss) {
-    _updateArticles(idss)
+  _getArtcilesAndUpdate(List<int> idss) async {
+    _isLoadingSubject.add(true);
+    await _updateArticles(idss)
         .then((_) => {_articlesSubject.add(UnmodifiableListView(_articles))});
+    _isLoadingSubject.add(false);
   }
-
-  Stream<UnmodifiableListView<Articles>> get articles =>
-      _articlesSubject.stream;
 
   Future<Null> _updateArticles(List<int> articlesIds) async {
     final futureArticles = articlesIds.map((e) => getArticle(e));

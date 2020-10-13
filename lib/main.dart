@@ -4,6 +4,7 @@ import 'package:HackerNewsApp/bloc/hackerNews_Bloc.dart';
 import 'package:HackerNewsApp/modals/Article.dart';
 import 'package:HackerNewsApp/services/GetArticle%5BAPI%20calls%5D.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
   final hnBloc = HackerNewsBloc();
@@ -21,8 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.orange,
       ),
       home: MyHomePage(
         title: 'Hacker Earth News',
@@ -43,13 +43,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var indxces;
+  var currentIndexs = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        leading: LoadingInfo(widget.bloc.isLoading),
       ),
       body: StreamBuilder<UnmodifiableListView<Articles>>(
           stream: widget.bloc.articles,
@@ -60,13 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }),
       bottomNavigationBar: BottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: currentIndexs,
           onTap: (index) {
             if (index == 0) {
               widget.bloc.storiesType.add(StoriesType.topStories);
             } else {
               widget.bloc.storiesType.add(StoriesType.newStories);
             }
+            setState(() {
+              currentIndexs = index;
+            });
           },
           items: [
             BottomNavigationBarItem(
@@ -90,4 +94,42 @@ Widget _buildItem(Articles articles) {
       )
     ],
   );
+}
+
+class LoadingInfo extends StatefulWidget {
+  Stream<bool> _isLoading;
+  LoadingInfo(this._isLoading);
+
+  @override
+  _LoadingInfoState createState() => _LoadingInfoState();
+}
+
+class _LoadingInfoState extends State<LoadingInfo>
+    with TickerProviderStateMixin {
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 3));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: widget._isLoading,
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          _controller.forward().then((value) => _controller.reverse());
+          return FadeTransition(
+            opacity: Tween(begin: .5, end: 1.0).animate(
+                CurvedAnimation(curve: Curves.easeIn, parent: _controller)),
+            child: Icon(
+              FontAwesomeIcons.hackerNews,
+              size: 30,
+            ),
+          );
+        });
+  }
 }
