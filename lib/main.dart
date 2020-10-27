@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:HackerNewsApp/bloc/hackerNews_Bloc.dart';
 import 'package:HackerNewsApp/modals/Article.dart';
 import 'package:HackerNewsApp/services/GetArticle%5BAPI%20calls%5D.dart';
@@ -21,6 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
@@ -50,10 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        leading: LoadingInfo(widget.bloc.isLoading),
+        leading: LoadingInfo(widget.bloc.outputisLoading),
       ),
       body: StreamBuilder<UnmodifiableListView<Articles>>(
-          stream: widget.bloc.articles,
+          stream: widget.bloc.outputarticles,
           initialData: UnmodifiableListView<Articles>([]),
           builder: (context, snapshot) {
             return ListView(
@@ -64,9 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
           currentIndex: currentIndexs,
           onTap: (index) {
             if (index == 0) {
-              widget.bloc.storiesType.add(StoriesType.topStories);
+              widget.bloc.inputstoriesType.add(StoriesType.topStories);
             } else {
-              widget.bloc.storiesType.add(StoriesType.newStories);
+              widget.bloc.inputstoriesType.add(StoriesType.newStories);
             }
             setState(() {
               currentIndexs = index;
